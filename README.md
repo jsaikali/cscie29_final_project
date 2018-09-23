@@ -33,7 +33,9 @@ decide how much of the work to include in your cookiecutter template first or
 
 Initiate a new local project folder using your cookiecutter repo, then manually
 link to this remote origin as you did last time.  This project stub should be
-named `pset_02`.
+named `pset_02`.  You may structure the interior as you like, so long as
+anything you add and call from your `main.py` is importable from the top, eg:
+`from pset_02 import WordEmbedding`.
 
 ### Including pset_utils (15 points)
 
@@ -255,16 +257,18 @@ You will need to perform basic tokenization.  You can do something like:
 import re
 def tokenize(text):
     # Get all "words", including contractions
-    return re.findall("\w[\w']+", "Hello, I'm scott")
+    # eg tokenize("Hello, I'm Scott") --> ['Hello', "I'm", "Scott"]
+    return re.findall("\w[\w']+", text)
 ```
 
 Be sure to test your implementation!  You may want to add things like ensuring
-all tokens are lowercase (eg `some_str.lower()`) to ease lookup into the vectors
+all tokens are lowercase (eg `some_str.lower()`) to ease lookup into the
+vectors.
 
-You then need a class to perform the mapping.  Create a class called `WordEmbedding`, that is initialized with two arguments: the
-word list and the vectors.  Implement the embedding as the `__call__` method
-as well as a helper constructor to load from files (we do this to help with
-testing):
+You then need a class to perform the mapping.  Create a class called
+`WordEmbedding`, that is initialized with two arguments: the word list and the
+vectors.  Implement the embedding as the `__call__` method as well as a helper
+constructor to load from files (we do this to help with testing):
 
 ```
 class WordEmbedding(object):
@@ -375,7 +379,7 @@ The hashed ids were taken with a lower-case version of the github id.
 You can encapsulate a distance function for yourself, something like:
 
 ```python
-
+# Load vecs back from your written data/embedded.csv, and set the index
 vectors = ...
 my_vec = vectors[my_hashed_id]
 def my_distance(vec):
@@ -383,6 +387,10 @@ def my_distance(vec):
 
 distances = vectors.apply(my_distance)
 ```
+
+Note the comment above to load your data back - do not just continue using the
+same in-memory dataframe.  The reasoning will become clear in future psets.
+You can use `pandas.read_csv`.
 
 Find the 5 students closest to you and the 5 students furthest from you in
 document space.  Consider tools like `numpy.argsort` and `DataFrame.sort_values`
