@@ -52,21 +52,42 @@ aspects without preinstalling pset_utils.  Document your decisions here.
 
 #### Docker/pipenv prep
 
-We took a shortcut last time by installing our pipenv into the system python
-inside the Docker container.  This will cause some small issues later on, so
-we can easily fix that by removing the `--system` flag in the last line of our
-Dockerfile, so it reads:
+Oh no! We made a slight mistake last time with our `Dockerfile`.  According to
+[this
+post](https://stackoverflow.com/questions/46503947/how-to-get-pipenv-running-in-docker),
+best practices indicate that we should only install the locked requirements
+(`--ignore-pipfile`) and also enable the `--deploy` flag.  While we're editing,
+let's add some of those `ENV` arguments linked in the
+[template](https://github.com/wemake-services/wemake-django-template/blob/master/%7B%7Bcookiecutter.project_name%7D%7D/docker/django/Dockerfile)
+there:
 
 ```docker
-RUN pipenv install --dev
+ENV \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PIP_NO_CACHE_DIR=off \
+  PIP_DISABLE_PIP_VERSION_CHECK=on \
+  PIP_DEFAULT_TIMEOUT=100 \
+  PIPENV_HIDE_EMOJIS=true \
+  PIPENV_COLORBLIND=true \
+  PIPENV_NOSPIN=true \
+  PYTHONPATH="/app:${PYTHONPATH}"
+
+WORKDIR /build
+
+...
+
+RUN pipenv install --system --deploy --ignore-pipfile --dev
+WORKDIR /app
 ```
 
-Note that we now have to 'enter' the pipenv to use it.  We can do so easily
-by modifying drun_app like so:
+Also note the new WORKDIR directive before we start copying files into the Docker
+image, and the revert back to the app dir after we're done.  This will prevent
+some issues between the editable repo installs when we're mounting the local
+folder into /app when we're running.
 
-```bash
-docker-compose run app pipenv run "$@"
-```
+Be sure to update this part in your cookiecutter!
 
 #### Create a Github API token
 
@@ -79,6 +100,11 @@ Developer Settings, or directly navigate
 DO NOT SHARE THIS TOKEN WITH ANYONE.  It gives access to all your github repos.
 If it becomes compromised, delete it from github and generate a new one.  You
 will be uploading this token to Travis, but it is private only to you.
+
+For more reference on security, see [Travis Best
+Practices](https://docs.travis-ci.com/user/best-practices-security/#recommendations-on-how-to-avoid-leaking-secrets-to-build-logs)
+and [Removing Sensitive
+Data](https://help.github.com/articles/removing-sensitive-data-from-a-repository/).
 
 Add the following lines to your Dockerfile, just below the `FROM` line:
 ```docker
@@ -99,23 +125,39 @@ You then need to set `CI_USER_TOKEN` as an environment variable, either in your
 [dotenv](https://docs.docker.com/compose/env-file/) file in the project
 directory (you ***must*** add files like this to your `.gitignore`), or
 similarly with a [docker-compose
-override](https://docs.docker.com/compose/extends/#multiple-compose-files)
+override](https://docs.docker.com/compose/extends/#multiple-compose-files).  Note
+that environment variables can be tricky if you aren't familiar with how to use
+them; the `.env` file may be the easiest approach, but will need to be copied
+to each new project, since you can't commit it to your cookiecutter repo
+(although, you could keep the file in your local cookiecutter repo, so long
+as it is ignored by git!).
 
 You must then add the variable to the Travis environment as well; you can do
 that via navigating to the settings, eg
 https://travis-ci.com/csci-e-29/your_repo/settings, via the [Travis
 CLI](https://github.com/travis-ci/travis.rb), or encrypting into the
 `.travis.yml` as instructed on the first Travis link above.  The token should
-NOT be committed to your repo in plain text anywhere.
+NOT be committed to your repo in plain text anywhere.  You could automate the
+encryption via cookiecutter, but it would take a bit of experimentation with
+your hooks - you would need to run something like `travis encrypt -r {{ owner
+}}/{{ repo }} CI_USER_TOKEN=123 --add`.  You are not required to automate this
+for the purpose of this pset!
 
-You can then install your pset_utils.  Use the template below, substituting
-master for a tag if you'd like:
+#### Install the utils!
+
+You can now install your `pset_utils` as below.  Note that the #egg part is
+important, it is not a comment!
 
 ```bash
-./drun_app pipenv install -e git+https://github.com/csci-e-29/your_repo@master#egg=pset_utils
+./drun_app pipenv install -e git+https://github.com/csci-e-29/pset_utils-you#egg=pset_utils
 ```
 
-Upgrade as necessary when you improve your pset_utils
+This will include the latest master commit (presumably tagged) and will be
+automatically updated whenever you run `pipenv update`.  If you want to be more
+specific about the version, you can use the `@v1.2.3` syntax when you install,
+or add `ref='v1.2.3` to the specification in the `Pipfile`.  Leaving this to
+automatically check out the latest master is easiest and a good reason to have
+merge-only master releases!
 
 #### Including the utils tests
 
