@@ -191,9 +191,9 @@ If it doesn't render well for you, try copying into [CodeCogs](https://www.codec
 
 In this repository, we have included three files:
 
-1. `data/words.txt` contains  a list of 9842 common words
-2. `data/vectors.npy` is a 9842x300 embedding matrix. Each row of the matrix is
-the 300-dimensional vector representation for the word at the same position in
+1. `data/words.txt` contains  a list of 9844 common words
+2. `data/vectors.npy.gz` is a 9844x300 embedding matrix. Each row of the matrix
+is the 300-dimensional vector representation for the word at the same position in
 the vocab list (first row <-> first word in list, ... etc).  You can load this
 with `numpy.load`.
 3. `data/hashed.xlsx`, a tablular dataframe containing hashed github user ids,
@@ -287,7 +287,7 @@ class WordEmbedding(object):
 
         Example::
 
-            embedding = WordEmbedding.from_files('words.txt', 'vecs.npy')
+            embedding = WordEmbedding.from_files('words.txt', 'vecs.npy.gz')
 
         :rtype: cls
         """
