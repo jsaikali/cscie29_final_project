@@ -176,6 +176,52 @@ just to test your utils.  Normally, the latter is preferred - it gives nice
 isolation.  However, it will require travis to rebuild your docker image, which
 is suboptimal.
 
+### Atomic (re)writes (15 points)
+
+During a late-night reading session, you notice that someone else has implemented
+an [atomic writer](https://pypi.org/project/atomicwrites/) for python!  Almost
+certainly they have done a better job of ensuring it works correctly, and we
+don't want the responsibility of maintaining this kind of thing!  However, we
+have already written code using our `pset_utils.io:atomic_write` manager.
+
+To maintain backwards compatibility, you should ***rewrite your atomic_write***
+function to use the published package in the backend, without your code knowing.
+Note that this package may not implement every feature you did, such as
+preserving the extension.  You must find a way to ensure they are still
+implemented!
+
+Here are a few tips you can use:
+
+```python
+
+# You can import and rename things to work with them internally,
+# without exposing them publicly or to avoid naming conflicts!
+from atomicwrites import atomic_write as _backend_writer, AtomicWriter
+
+# You probably need to inspect and override some internals of the package
+class SuffixWriter(AtomicWriter):
+
+    def get_fileobject(self, dir=None, **kwargs):
+        # Override functions like this
+        ...
+
+@contextmanager
+def atomic_write(file, mode='w', as_file=True, new_default='asdf', **kwargs):
+
+    # You can override things just fine...
+    with _backend_writer(some_path, writer_cls=SuffixWriter, **kwargs) as f:
+        # Don't forget to handle the as_file logic!
+        yield f
+```
+
+Since you already wrote tests for the writer, they should still all pass when
+you appropriately achieve backwards compatibility (assuming you have tested
+all the features!)
+
+Ensure that the `atomicwrites` package is appropriately added to your
+`pset_utils` `setup.py`, and when you update in this project, you should notice
+that pipenv has installed it here too via the dependency chain.
+
 ### Feedback (10 points)
 
 #### How many hours did this assignment take?  Too hard/easy/just right? (2 points)
