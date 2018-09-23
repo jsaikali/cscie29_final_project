@@ -270,7 +270,7 @@ You then need a class to perform the mapping.  Create a class called
 vectors.  Implement the embedding as the `__call__` method as well as a helper
 constructor to load from files (we do this to help with testing):
 
-```
+```python
 class WordEmbedding(object):
     def __init__(self, words, vecs):
         ...
@@ -354,6 +354,8 @@ similarity(A, B)
 = \frac {A \cdot B} {\left\| A \right\| \left\| B \right\| }
 = \frac {\sum A_i B_i} { \sqrt{\sum A_i^2} \sqrt{\sum B_i^2} }
 $$
+
+![](https://latex.codecogs.com/gif.latex?similarity%28A%2C%20B%29%20%3D%20cos%28%5Ctheta%29%20%3D%20%5Cfrac%20%7BA%20%5Ccdot%20B%7D%20%7B%5Cleft%5C%7C%20A%20%5Cright%5C%7C%20%5Cleft%5C%7C%20B%20%5Cright%5C%7C%20%7D%20%3D%20%5Cfrac%20%7B%5Csum%20A_i%20B_i%7D%20%7B%20%5Csqrt%7B%5Csum%20A_i%5E2%7D%20%5Csqrt%7B%5Csum%20B_i%5E2%7D%20%7D)
 
 Implement a method
 `cosine_similarity(a, b)` that computes cosine similiarity for two vector
