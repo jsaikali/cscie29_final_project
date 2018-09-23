@@ -4,16 +4,18 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Pset 2](#pset-2)
-  - [Problems (80 points)](#problems-80-points)
-    - [Including pset_utils (10 points)](#including-pset_utils-10-points)
-      - [Create a Github API token](#create-a-github-api-token)
-    - [Feedback (10 points)](#feedback-10-points)
-      - [How many hours did this assignment take?  Too hard/easy/just right? (2 points)](#how-many-hours-did-this-assignment-take--too-hardeasyjust-right-2-points)
-      - [What did you find interesting? Challenging? Tedious? (8 points)](#what-did-you-find-interesting-challenging-tedious-8-points)
-  - [Python Quality (10 points)](#python-quality-10-points)
-  - [Git History (10 points)](#git-history-10-points)
-  - [Total Grade](#total-grade)
+- [Problems (80 points)](#problems-80-points)
+  - [Including pset_utils (20 points)](#including-pset_utils-20-points)
+    - [Docker/pipenv prep](#dockerpipenv-prep)
+    - [Create a Github API token](#create-a-github-api-token)
+    - [Install the utils!](#install-the-utils)
+    - [Including the utils tests](#including-the-utils-tests)
+  - [Feedback (10 points)](#feedback-10-points)
+    - [How many hours did this assignment take?  Too hard/easy/just right? (2 points)](#how-many-hours-did-this-assignment-take--too-hardeasyjust-right-2-points)
+    - [What did you find interesting? Challenging? Tedious? (8 points)](#what-did-you-find-interesting-challenging-tedious-8-points)
+- [Python Quality (10 points)](#python-quality-10-points)
+- [Git History (10 points)](#git-history-10-points)
+- [Total Grade](#total-grade)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
