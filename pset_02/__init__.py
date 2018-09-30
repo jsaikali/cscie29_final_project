@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+from pkg_resources import get_distribution, DistributionNotFound
+
+"""Top-level package for pset 02."""
+
+__author__ = """Joanna Saikali"""
+__email__ = 'joanna.saikali@gmail.com'
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    package is not installed
+    from setuptools_scm import get_version
+    import os
+    __version__ = get_version(
+        os.path.dirname(os.path.dirname(__file__))
+    )
