@@ -6,8 +6,10 @@ Use: After building, you can run this via ./drun_app python main.py
 """
 
 from pset_utils.io.io import atomic_write
-from pset_02 import WordEmbedding, load_data
+from pset_02 import WordEmbedding, load_data, my_salt
 import pandas
+
+import numpy
 
 if __name__ == '__main__':
     # instantiate the embedding class
@@ -27,6 +29,6 @@ if __name__ == '__main__':
     filename = "data/embedded.csv"
     with atomic_write(filename) as f:
         df.to_csv(f)
-
+    print(env_name())
 
 
