@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pkg_resources import get_distribution, DistributionNotFound
 from pset_02.load_datasets import load_data, load_words, load_vectors
+from pset_02.wordembedding import WordEmbedding
 
 """Top-level package for pset 02."""
 

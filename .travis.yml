@@ -19,5 +19,7 @@ jobs:
       script: ./drun_app pytest
     - stage: utiltest
       script: ./drun_app pytest pset_utils      
-
+    - stage: deploy
+      if: branch = master
+      script: ./drun_app python main.py
 
