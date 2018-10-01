@@ -20,6 +20,7 @@ Ensuring that my hash returns the expectation of 33a0b58b
 """
 
 
-def test_my_salt():
-    from pset_02.similarity_distance_functions import my_salt
-    assert my_salt() == '33a0b58b'
+def test_my_hash():
+    from pset_02.similarity_distance_functions import my_hash
+    assert my_hash() == '33a0b58b'
+

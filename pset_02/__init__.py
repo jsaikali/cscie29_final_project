@@ -2,7 +2,7 @@
 from pkg_resources import get_distribution, DistributionNotFound
 from pset_02.load_datasets import load_data, load_words, load_vectors
 from pset_02.wordembedding import WordEmbedding
-from pset_02.similarity_distance_functions import cosine_similarity, my_salt
+from pset_02.similarity_distance_functions import cosine_similarity, my_hash, find_distance
 
 """Top-level package for pset 02."""
 

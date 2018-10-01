@@ -35,7 +35,6 @@ def load_vectors(filename):
     """
     array_file = open(filename, 'rb')
     array_obj = numpy.load(array_file)
-
     return array_obj
 
 
