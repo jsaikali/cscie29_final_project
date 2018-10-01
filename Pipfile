@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 pset-utils = {editable = true, git = "https://github.com/csci-e-29/pset_utils-jsaikali.git"}
+pandas = "*"
+numpy = "*"
+xlrd = "*"
 
 [dev-packages]
 pytest = "*"
