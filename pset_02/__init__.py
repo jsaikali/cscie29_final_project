@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from pkg_resources import get_distribution, DistributionNotFound
+from load_datasets import load_data, load_words, load_vectors
 
 """Top-level package for pset 02."""
 
