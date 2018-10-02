@@ -1,0 +1,10 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      args:
+        - CI_USER_TOKEN=${CI_USER_TOKEN}
+        - SALT=${SALT}
+    volumes:
+      - .:/app
