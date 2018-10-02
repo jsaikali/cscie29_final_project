@@ -3,6 +3,8 @@ Modified By: Joanna Saikali
 
 Note: Original prompt preserved in PROMPT.md. This file contains the minimum necessary information to navigate my answers  
 
+[![Build Status](https://travis-ci.com/csci-e-29/pset_2-jsaikali.svg?token=X6M5v2tzTUCBJ9zS8gst&branch=master)](https://travis-ci.com/csci-e-29/pset_2-jsaikali)
+
 ## Problems (80 points)
 
 ### Including pset_utils (15 points)
