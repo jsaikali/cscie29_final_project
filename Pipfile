@@ -8,6 +8,7 @@ pset-utils = {editable = true, git = "https://github.com/csci-e-29/pset_utils-js
 pandas = "*"
 numpy = "*"
 xlrd = "*"
+atomicwrites = "*"
 
 [dev-packages]
 pytest = "*"
