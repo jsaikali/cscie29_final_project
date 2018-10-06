@@ -17,7 +17,7 @@ ENV \
   PYTHONPATH="/app:${PYTHONPATH}"
 WORKDIR /build
 
-RUN pip3 install pipenv
+RUN pip3 install pipenv==2018.5.18
 
 COPY Pipfile .
 COPY Pipfile.lock .
