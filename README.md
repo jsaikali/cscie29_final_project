@@ -33,7 +33,7 @@ if __name__ == '__main__':
     embedding = WordEmbedding.from_files('data/words.txt', 'data/vectors.npy.gz')
 
     # read in the hashed student data
-    data = load_data('data/yelp_review_subset.csv.zip)
+    data = pandas.read_csv('data/yelp_review_subset.csv.zip')
                      
     # create the vector representation for each survey entry
     vecs = data['text'].apply(embedding.embed_document) 
