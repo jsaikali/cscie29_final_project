@@ -13,6 +13,7 @@ services:
 install: docker-compose build
 
 jobs:
+  include:
     - stage: deploy
       script: ./drun_app python main.py
 
