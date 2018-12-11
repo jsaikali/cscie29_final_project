@@ -13,12 +13,6 @@ services:
 install: docker-compose build
 
 jobs:
-  include:
-    - stage: test
-      # Command to run tests, e.g. python setup.py test
-      script: ./drun_app pytest
-    - stage: utiltest
-      script: ./drun_app pytest pset_utils      
     - stage: deploy
       script: ./drun_app python main.py
 
