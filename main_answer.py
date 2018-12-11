@@ -17,7 +17,7 @@ import csv ##Q1
 if __name__ == '__main__':
     # instantiate the embedding class
     embedding = WordEmbedding.from_files('data/words.txt', 'data/vectors.npy.gz')
-    print('started')
+
     # read in the yelp review data
     pd_start=time.time() ##Q1
     #data = pandas.read_csv('data/yelp_review.csv.zip')

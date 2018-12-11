@@ -9,6 +9,7 @@ from pset_utils.io.io import atomic_write
 from pset_02 import WordEmbedding, load_data, find_distance
 import pandas
 import os
+import glob
 
 if __name__ == '__main__':
     # instantiate the embedding class

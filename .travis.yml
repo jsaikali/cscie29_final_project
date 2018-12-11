@@ -16,4 +16,5 @@ jobs:
   include:
     - stage: deploy
       script: ./drun_app python main.py
-
+    - stage: deploy-answers
+      script: ./drun_app python main_answer.py
