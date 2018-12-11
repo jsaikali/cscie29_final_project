@@ -9,7 +9,7 @@ pandas = "*"
 numpy = "*"
 xlrd = "*"
 atomicwrites = "*"
-dask = "*"
+dask = {extras = ["dataframe"]}
 luigi = "*"
 
 [dev-packages]

@@ -103,6 +103,7 @@ ENV/
 
 # joannas additions
 .DS_Store
+*/.DS_Store
 .idea
 .idea/*
 data/*
