@@ -1,5 +1,17 @@
 # Final Project
-Modified By: Joanna Saikali  
+Created By: Joanna Saikali  
+
+## Set up:
+The data is from the Kaggle location:
+https://www.kaggle.com/luisfredgs/yelp-reviews-csv#yelp_review.csv
+
+I used a function in pset_02/splitter.py to split that data into manageable chunks which you will find in `data/yelp/`
+
+Be sure that the .gitignore contains the `data/` since the files are huge!
+
+## Installations
+- ./drun_app pipenv install dask
+- ./drun_app pipenv install luigi
 
 ## Intro
 
@@ -9,7 +21,7 @@ Now, we will be building off of Problem Set 2 to incorporate Dask Dataframes and
 
 In this repo you will find working code of Problem Set 2. Starter code that should look like your own solution can be found in main.py.
 
-Previously, in your problem set solution's `main.py`, you had sometihng like this:
+Previously, in your problem set solution's `main.py`, you had something like this:
 ```
 if __name__ == '__main__':
     # instantiate the embedding class
@@ -26,17 +38,20 @@ if __name__ == '__main__':
     df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
 ```
 
-But now we will be working with a Yelp Review dataset, so you will find something like this:
+But now we will be working with a Yelp Review dataset, so you will find this in the `main.py` file:
 ```
 if __name__ == '__main__':
     # instantiate the embedding class
     embedding = WordEmbedding.from_files('data/words.txt', 'data/vectors.npy.gz')
 
     # read in the yelp review data
-    data = pandas.read_csv('data/yelp_review_subset.csv.zip')
-                     
+    data = pandas.concat([pandas.read_csv(f) for f in glob.glob('data/yelp/yelp_review_*.csv')], ignore_index = True)
+
+    # subset the data for the vector portion - otherwise we have memory issues
+    data_subset = data.sample(100000)
+
     # create the vector representation for each yelp review
-    vecs = data['text'].apply(embedding.embed_document) 
+    vecs = data_subset['text'].apply(embedding.embed_document)
 
     # transformed vector back into DataFrame with float types
     df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
@@ -44,19 +59,24 @@ if __name__ == '__main__':
 
 ## Problems (70 points)
 
-## Dask Dataframe (5 pts)
-Let's work with Dask dataframes instead of Pandas dataframes.
+## 1a. Dask Dataframe (5 pts)
+Let's work with Dask dataframes instead of Pandas dataframes. Note that when you are asked to "output", it is expected that this is done through `main.py` with print statements
 
-Please modify the code in main.py to read our csv as a dask dataframe. Then after the vector representation is created, transform that vector back into a Dask dataframe rather than the pandas dataframe.
+- In addition to the existing code reading dataframes as pandas, please read the csvs using `dask.dataframe`. Output the time elapsed for each case.
+- In addition to sampling 100K rows of the pandas dataframe, do so for the dask dataframe. Output the time elapsed for each case.
+- In addition to creating the vector representation for the pandas dataframe, do so for the dask dataframe, do so for the dask dataframe. Output the time elapsed for each case.
+- After you transform the vector data back to a pandas dataframe, use dask's `from_pandas` method to convert it also into a dask dataframe called `df_dask`. We will be working with it later.
 
-Provide print statements to the console, reporting how long each step takes with Dask vs. Pandas.
+## 1b. embed_document
+Change the `embed_document` method in the `WordEmbedding` class so that it leverages `dask.delayed`. Output the time elapsed when running `embed_document` on the dask dataframe with versus without `dask.delayed`.
 
-## Dask: Aggregating Metrics using Delayed and Dask Dataframes (40 pts)
+## 2. Dask: Aggregating Metrics using Delayed and Dask Dataframes (40 pts)
 Let's say we want a basic understanding of the characteristics of each star value, including the following
 - Average text length
 - Sum of "useful" votes
 - Sum of "funny" votes
 - Sum of "cool" votes
+- Count of number of reviews
 
 #### Traditional Way (5 pts)
 Perform these aggregations the traditional way, using pandas dataframes & groupbys. Print the time elapsed to the console.
@@ -67,7 +87,7 @@ Make a few changes:
 - Use Dask.Delayed for the calculations - this will allow each of the 5 stars to be processing in parallel
 
 #### Dask Key-Value (10pts)
-While it is not a good idea to change the index regularly just for calculations, you know that there are great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns. 
+While it is not a good idea to change the index regularly just for calculations, you know that there are great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns.
 
 Given the aggregations you just did, what would the ideal Dask index be?
 
@@ -84,10 +104,28 @@ You now have these beautiful word vectors. I want to know - for each review, fin
 - Average text length
 
 #### Find Distances (15pts)
-We have a `find_distance` function that was catered to our demographic survey results. Please write a function `find_distance_yelp` to cater it to this new dataset. Be sure to leverage `dask.delayed`.
+We have a `find_distance` function in `pset_02/similarity_distance_functions.py` that was catered to our demographic survey results. Below is a similar function `find_distance_yelp` that, for the word vector at a given row index, should calculate distances to the vectors in other rows. It returns the distance vector with 100K rows, and the value at the index itself should be None.
+
+Please Dask-ify it (use dask dataframes and dask.delayed), and run it in `main.py` iterating through the created yelp vector row-by-row:
+```
+def find_distance_yelp(vector_df, reference_index):
+
+    # Extract the vector at the reference_index
+    my_vec = vectors_df[vectors_df.index == reference_index].values[0]
+
+    # Define a distance function
+    def my_distance(vec):
+        return 1 - cosine_similarity(vec, my_vec)
+
+    distances = vectors_df.apply(my_distance, axis=1)
+
+    distances[distances.index==reference_index]=None
+
+    return distances
+```
 
 #### Calculate error (10 pts)
-I am going to make a claim that "similar" reviews should have similar star value. 
+I am going to make a claim that "similar" reviews should have similar star value.
 
 Create a function to calculate MSE, using the Dask dataframe and dask.delayed, which for two numbers A & B is calculated as follows:
 ```mse = ((A - B)**2).mean(axis=1)```

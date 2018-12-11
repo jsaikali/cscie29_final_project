@@ -9,6 +9,8 @@ pandas = "*"
 numpy = "*"
 xlrd = "*"
 atomicwrites = "*"
+dask = "*"
+luigi = "*"
 
 [dev-packages]
 pytest = "*"
