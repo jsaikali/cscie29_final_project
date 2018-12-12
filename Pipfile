@@ -11,6 +11,8 @@ xlrd = "*"
 atomicwrites = "*"
 dask = {extras = ["dataframe"]}
 luigi = "*"
+graphviz = "*"
+ipython = "*"
 
 [dev-packages]
 pytest = "*"

@@ -14,6 +14,7 @@ Be sure that the .gitignore contains the `data/` since the files are huge!
 Please perform the following installations
 - ./drun_app pipenv install dask
 - ./drun_app pipenv install luigi
+- ./drun_app pipenv install graphviz
 
 ## Intro
 
@@ -64,9 +65,11 @@ if __name__ == '__main__':
         df.to_csv(f)
 ```
 
-## Problems (70 points)
+## Problems (55 points)
 
-## 1a. Dask Dataframe (5 pts)
+## 1. Same thing - but with Dask! (20 pts)
+
+### 1a. Dask Dataframe (5 pts)
 Let's work with Dask dataframes instead of Pandas dataframes. Note that when you are asked to "Output", it is expected that this is done through `main.py` with print statements
 
 1. In addition to the existing code reading dataframes as pandas, please read the csvs in `data/yelp/` using `dask.dataframe`. Report:
@@ -76,7 +79,7 @@ Let's work with Dask dataframes instead of Pandas dataframes. Note that when you
     - Time elapsed running `embed_document` on the pandas dataframe
     - Time elapsed running `embed_document` on the dask dataframe
 
-## 1b. Dask Delayed
+### 1b. Dask Delayed (5pts)
 When running the `embed_document` function off of the dask dataframe, we can further make it efficient ny leveraging `dask.delayed`. 
 
 Add a line of code to your main function to run the `embed_document` on the dask dataframe using `dask.delayed`.  method in the `WordEmbedding` class so that it leverages `dask.delayed`. In part 2 of the last question, you reported some timestamps. Now report:
@@ -84,61 +87,62 @@ Add a line of code to your main function to run the `embed_document` on the dask
 
 Is there a significant difference in computation speed?
 
-## 2. Dask: Aggregating Metrics using Delayed and Dask Dataframes (40 pts)
+#### 1c. Visualize (10pts)
+Now, you know that Dask isn't ALL about speed. It is also about efficiency of running in parallel and distributing across your local machine.
+
+Leverage ".visualize()" and write it out to a file `data/task_graph.png`, to see the parallel processes going on for the function done above. Please be sure to include it in your submission.
+
+## 2. Aggregating Metrics using Delayed and Dask Dataframes (20 pts)
 Let's say we want a basic understanding of the characteristics of each star value, including the following
-- Average text length
 - Sum of "useful" votes
 - Sum of "funny" votes
 - Sum of "cool" votes
 - Count of number of reviews
 
-#### Traditional Way (5 pts)
-Perform these aggregations the traditional way, using pandas dataframes & groupbys. Print the time elapsed to the console.
+#### 2a. Traditional Way (5 pts)
+Perform these aggregations the traditional way, using pandas dataframes & groupbys. Make sure to use the full dataframe, not the subsetted/sampled one! Print the time elapsed to the console.
 
-#### Dask Way (15pts)
+#### 2b. Dask Way (5pts)
 Make a few changes:
 - Leverage Dask Dataframes for those aggregations instead of Pandas
 - Use Dask.Delayed for the calculations - this will allow each of the 5 stars to be processing in parallel
 
-#### Dask Key-Value (10pts)
-While it is not a good idea to change the index regularly just for calculations, you know that there are great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns.
+#### 2c. Dask Key-Value (10pts)
+While it is not a good idea to change the index regularly just for calculations, you know that there are great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns. Changing the index can be costly upfront, but if you're doing many queries and aggregations, it can be worthwhile
 
 Given the aggregations you just did, what would the ideal Dask index be?
 
-Run the aggregations again with said index, and report on the time it took for those aggregations.
+Run the aggregations again with said index, and report on the time it took for those aggregations. Don't include the time it takes to actually change the index, as that is definitely a costly operation.
 
-#### Visualize (10pts)
-Now, you know that Dask isn't ALL about speed. It is also about efficiency of running in parallel and distributing across your local machine.
-
-Leverage ".visualize()" and print it to the console, to see the parallel processes going on for the aggregation done above.
-
-## Word Vectors (25pts)
+## 3. Word Vectors (25pts)
 You now have these beautiful word vectors. I want to know - for each review, find the 5 closest neighbors, and report on:
 - Average number of stars for those 5 neighbors
 - Average text length
 
-#### Find Distances (15pts)
-We have a `find_distance` function in `pset_02/similarity_distance_functions.py` that was catered to our demographic survey results. Below is a similar function `find_distance_yelp` that, for the word vector at a given row index, should calculate distances to the vectors in other rows. It returns the distance vector with 100K rows, and the value at the index itself should be None.
+#### 3a. Find Distances (15pts)
+We have a `find_distance` function in `pset_02/similarity_distance_functions.py` that was catered to our demographic survey results. Below is a similar function `find_distance_yelp` that, for the word vector at a given row index, should calculate distances to the vectors in other rows. It returns the distance vector with 10K rows, and the value at the index itself should be None.
+
+It currently works for a given index for the pandas vector created.
 
 Please Dask-ify it (use dask dataframes and dask.delayed), and run it in `main.py` iterating through the created yelp vector row-by-row:
+
 ```
 def find_distance_yelp(vector_df, reference_index):
-
     # Extract the vector at the reference_index
-    my_vec = vectors_df[vectors_df.index == reference_index].values[0]
-
+    my_vec = vector_df[vector_df.index == reference_index].values[0]
+    
     # Define a distance function
     def my_distance(vec):
         return 1 - cosine_similarity(vec, my_vec)
-
-    distances = vectors_df.apply(my_distance, axis=1)
-
+    
+    distances = vector_df.apply(my_distance, axis=1)
+    
     distances[distances.index==reference_index]=None
-
+    
     return distances
 ```
 
-#### Calculate error (10 pts)
+#### 3b. Calculate error (10 pts)
 I am going to make a claim that "similar" reviews should have similar star value.
 
 Create a function to calculate MSE, using the Dask dataframe and dask.delayed, which for two numbers A & B is calculated as follows:

@@ -1,14 +1,13 @@
 """
 Created by: Joanna Saikali
-Date: September 30, 2018
-Purpose: Prove my work to answer the embedding questions provided in PROMPT.md
+Date: December 12, 2018
+Purpose: Starter main.py for Final Project
 Use: After building, you can run this via ./drun_app python main.py
 """
 
 from pset_utils.io.io import atomic_write
 from pset_02 import WordEmbedding, load_data, find_distance
 import pandas
-import os
 import glob
 
 if __name__ == '__main__':
@@ -16,8 +15,8 @@ if __name__ == '__main__':
     embedding = WordEmbedding.from_files('data/words.txt', 'data/vectors.npy.gz')
 
     # read in the yelp review data
-    #data = pandas.read_csv('data/yelp_review.csv.zip')
     data = pandas.concat([pandas.read_csv(f) for f in glob.glob('data/yelp/yelp_review_subset_*.csv')], ignore_index = True)
+    data=data.dropna()
 
     # subset the data for the vector portion - otherwise we have memory issues
     data_subset = data.sample(10000)
