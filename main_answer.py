@@ -6,7 +6,7 @@ Use: After building, you can run this via ./drun_app python main_answer.py
 """
 
 from pset_utils.io.io import atomic_write
-from pset_02 import WordEmbedding, load_data, find_distance,find_distance_yelp
+from pset_02 import WordEmbedding, load_data, find_distance,find_distance_yelp, find_distance_yelp_dask
 import pandas
 import os
 import time
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     metrics_start_dask=time.time()
     metrics_dask = ddf.groupby('stars').agg({'useful': numpy.mean, 'funny': numpy.mean, 'cool': numpy.mean, 'review_id': 'count'})
-    print("2c. dask df, new index, metrics calculation took %f seconds. Metrics reported are:" % (time.time()-metrics_start_dask))
+    print("2c. dask df, new index, metrics calculation took %f seconds." % (time.time()-metrics_start_dask))
 
     print("======== Question 3 Output ==========")
     vec_subset=vecs_df[0:1000]
@@ -102,5 +102,6 @@ if __name__ == '__main__':
 
     vec_dask_subset=dd.from_pandas(vec_subset,npartitions=10)
     closest_dask_start=time.time()
-    closest_wordvector_dask=vec_dask_subset.apply(lambda x: dask.delayed(find_distance_yelp)(vec_dask_subset,x),axis=1)
+    closest_wordvector_dask=vec_dask_subset.apply(lambda x: find_distance_yelp_dask(vec_dask_subset,x),axis=1)
     print("3b. dask finding index of closest word vector took %f seconds:" % (time.time()-closest_dask_start))
+    print(closest_wordvector_dask.head())

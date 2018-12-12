@@ -8,6 +8,7 @@ import numpy
 import os
 import pandas
 from pset_utils.hashing.hashing import hash_str
+import dask
 
 """
 Compute a distance metric to represent how "similar" two words are
@@ -59,6 +60,27 @@ def find_distance(vector_filename, github_username='jsaikali'):
 def find_distance_yelp(vector_df, my_vec):
     try:
         # Define a distance function
+        def my_distance(vec):
+            output = 1 - cosine_similarity(vec, my_vec)
+            return output
+
+        # Compute the distance vector for the row of reference
+        distances = vector_df.apply(my_distance, axis=1)
+
+        # Filter out the actual row itself (it's obviously closest to itself)
+        distances = distances[distances.index!=my_vec.name]
+
+        # Return the index of the word vector that is most similar
+        return distances[distances==min(distances)].index[0]
+    except:
+        # Will reach this point if the word vector is all 0s, for example
+        return
+
+@dask.delayed
+def find_distance_yelp_dask(vector_df, my_vec):
+    try:
+        # Define a distance function
+        @dask.delayed
         def my_distance(vec):
             output = 1 - cosine_similarity(vec, my_vec)
             return output
