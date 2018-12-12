@@ -40,7 +40,7 @@ def find_distance(vector_filename, github_username='jsaikali'):
 
     # Get my hash
     hashed_username = my_hash(github_username)
-    
+
     # Extract my personal vector
     my_vec = vectors_df[vectors_df.index == hashed_username].values[0]
 
@@ -55,3 +55,22 @@ def find_distance(vector_filename, github_username='jsaikali'):
     distances = distances[((distances != 0) & (distances != 1) & (~distances.isnull()))]
 
     return distances
+
+def find_distance_yelp(vector_df, my_vec):
+    try:
+        # Define a distance function
+        def my_distance(vec):
+            output = 1 - cosine_similarity(vec, my_vec)
+            return output
+
+        # Compute the distance vector for the row of reference
+        distances = vector_df.apply(my_distance, axis=1)
+
+        # Filter out the actual row itself (it's obviously closest to itself)
+        distances = distances[distances.index!=my_vec.name]
+
+        # Return the index of the word vector that is most similar
+        return distances[distances==min(distances)].index[0]
+    except:
+        # Will reach this point if the word vector is all 0s, for example
+        return

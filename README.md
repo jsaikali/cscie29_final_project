@@ -5,12 +5,13 @@ Created By: Joanna Saikali
 The data is from the Kaggle location:
 https://www.kaggle.com/luisfredgs/yelp-reviews-csv#yelp_review.csv
 
+I used a function in pset_02/splitter.py to split that data into manageable chunks which you will find in `data/yelp/`, but you do not need to touch it. The data is already provided in this repo (sorry github for putting 70 MB files on the repo)
 
-I used a function in pset_02/splitter.py to split that data into manageable chunks which you will find in `data/yelp/`
+Be sure that the .gitignore contains `data/` moving forward!
 
-Be sure that the .gitignore contains the `data/` since the files are huge!
+Clone this repo - it should look like your pset_02 solution, but just use this for convenience.
 
-## Installations
+### Installations
 Please perform the following installations
 - ./drun_app pipenv install dask
 - ./drun_app pipenv install luigi
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 
     # transformed vector back into DataFrame with float types
     df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
-    
+
     # utilize atomic_write to export results to data/embedded.csv
     filename = "data/embedded.csv"
     with atomic_write(filename) as f:
@@ -80,14 +81,14 @@ Let's work with Dask dataframes instead of Pandas dataframes. Note that when you
     - Time elapsed running `embed_document` on the dask dataframe
 
 ### 1b. Dask Delayed (5pts)
-When running the `embed_document` function off of the dask dataframe, we can further make it efficient ny leveraging `dask.delayed`. 
+When running the `embed_document` function off of the dask dataframe, we can further make it efficient ny leveraging `dask.delayed`.
 
 Add a line of code to your main function to run the `embed_document` on the dask dataframe using `dask.delayed`.  method in the `WordEmbedding` class so that it leverages `dask.delayed`. In part 2 of the last question, you reported some timestamps. Now report:
 - Time elapsed using embed_document on the dask dataframe WITH dask.delayed.
 
 Is there a significant difference in computation speed?
 
-#### 1c. Visualize (10pts)
+### 1c. Visualize (10pts)
 Now, you know that Dask isn't ALL about speed. It is also about efficiency of running in parallel and distributing across your local machine.
 
 Leverage ".visualize()" and write it out to a file `data/task_graph.png`, to see the parallel processes going on for the function done above. Please be sure to include it in your submission.
@@ -99,54 +100,69 @@ Let's say we want a basic understanding of the characteristics of each star valu
 - Sum of "cool" votes
 - Count of number of reviews
 
-#### 2a. Traditional Way (5 pts)
-Perform these aggregations the traditional way, using pandas dataframes & groupbys. Make sure to use the full dataframe, not the subsetted/sampled one! Print the time elapsed to the console.
+### 2a. Traditional Way (5 pts)
+Perform these aggregations the traditional way, using pandas dataframes & groupbys. Print the time elapsed to the console.
 
-#### 2b. Dask Way (5pts)
-Make a few changes:
-- Leverage Dask Dataframes for those aggregations instead of Pandas
-- Use Dask.Delayed for the calculations - this will allow each of the 5 stars to be processing in parallel
+Note: Make sure to use the full dataframe, not the subsetted/sampled one! The dataframe subsets containing only 10000 rows are intended for the word embedding portion, as that is computationally expensive.
 
-#### 2c. Dask Key-Value (10pts)
-While it is not a good idea to change the index regularly just for calculations, you know that there are great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns. Changing the index can be costly upfront, but if you're doing many queries and aggregations, it can be worthwhile
+### 2b. Dask Way (5pts)
+Do the same thing leveraging Dask. At a minimum you should use the Dask Dataframe, but if possible, try to incorporate dask.delayed as well in such a way that each of the 5 stars is aggregated in parallel.
+
+### 2c. Dask Key-Value (10pts)
+While it is not a good idea to change the index regularly just for calculations, you know that there can be great benefits to it when you have a lot of computations that rely on grouping/filtering specific columns. Changing the index can be costly upfront, but if you're doing many queries and aggregations, it can be worthwhile
 
 Given the aggregations you just did, what would the ideal Dask index be?
 
 Run the aggregations again with said index, and report on the time it took for those aggregations. Don't include the time it takes to actually change the index, as that is definitely a costly operation.
 
+In this case, was the re-indexing worth it? Why / why not?
+
 ## 3. Word Vectors (25pts)
-You now have these beautiful word vectors. I want to know - for each review, find the 5 closest neighbors, and report on:
+You now have these beautiful word vectors. I want to know - for each review, find the closest neighbor, and report on:
 - Average number of stars for those 5 neighbors
-- Average text length
 
-#### 3a. Find Distances (15pts)
-We have a `find_distance` function in `pset_02/similarity_distance_functions.py` that was catered to our demographic survey results. Below is a similar function `find_distance_yelp` that, for the word vector at a given row index, should calculate distances to the vectors in other rows. It returns the distance vector with 10K rows, and the value at the index itself should be None.
+### 3a. Find Distances (10pts)
+We have a `find_distance` function in `pset_02/similarity_distance_functions.py` that was catered to our demographic survey results. Below is a similar function `find_distance_yelp` that, for the word vector at a given row index, should calculate distances to the vectors in other rows. It returns the index of the "most similar" word vector.
 
-It currently works for a given index for the pandas vector created.
+Please put this function in the `pset_02/similarity_distance_functions.py` and run this on the word vector Pandas dataframe in `main.py` iterating through the created yelp vector row-by-row. Make sure to subset the dataframe to approximately 1000 rows so that your kernel doesn't die during this expensive computation.
 
-Please Dask-ify it (use dask dataframes and dask.delayed), and run it in `main.py` iterating through the created yelp vector row-by-row:
+Report how long it takes.
 
 ```
-def find_distance_yelp(vector_df, reference_index):
-    # Extract the vector at the reference_index
-    my_vec = vector_df[vector_df.index == reference_index].values[0]
-    
-    # Define a distance function
-    def my_distance(vec):
-        return 1 - cosine_similarity(vec, my_vec)
-    
-    distances = vector_df.apply(my_distance, axis=1)
-    
-    distances[distances.index==reference_index]=None
-    
-    return distances
-```
+def find_distance_yelp(vector_df, my_vec):
+    try:
+        # Define a distance function
+        def my_distance(vec):
+            output = 1 - cosine_similarity(vec, my_vec)
+            return output
 
-#### 3b. Calculate error (10 pts)
+        # Compute the distance vector for the row of reference
+        distances = vector_df.apply(my_distance, axis=1)
+
+        # Filter out the actual row itself (it's obviously closest to itself)
+        distances = distances[distances.index!=my_vec.name]
+
+        # Return the index of the word vector that is most similar
+        return distances[distances==min(distances)].index[0]
+    except:
+        # Will reach this point if the word vector is all 0s, for example
+        return
+```
+### 3a. Find Distances Dask (15pts)
+
+Please read the word vector in with dask.dataframe and Dask-ify the above function (use dask dataframes and dask.delayed).
+
+You can similarly run it in `main.py` iterating through the created yelp vector row-by-row.
+
+Report the time elapsed in both cases.
+
+### 3c. Calculate error (10 pts)
 I am going to make a claim that "similar" reviews should have similar star value.
 
 Create a function to calculate MSE, using the Dask dataframe and dask.delayed, which for two numbers A & B is calculated as follows:
-```mse = ((A - B)**2).mean(axis=1)```
+`mse = ((A - B)**2).mean(axis=1)`
+
+Note that above you already have the index of the "most similar" vector. You now need to tie it back to the star values for the reference vector vs. similar vector in order to do this calculation.
 
 For reference, what would the MSE have been if we assigned random values 1-5 instead of finding neighbors?
 

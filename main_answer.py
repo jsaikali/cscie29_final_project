@@ -6,7 +6,7 @@ Use: After building, you can run this via ./drun_app python main_answer.py
 """
 
 from pset_utils.io.io import atomic_write
-from pset_02 import WordEmbedding, load_data, find_distance
+from pset_02 import WordEmbedding, load_data, find_distance,find_distance_yelp
 import pandas
 import os
 import time
@@ -14,6 +14,7 @@ import glob
 import dask.dataframe as dd
 import dask
 import csv
+import numpy
 
 if __name__ == '__main__':
 
@@ -57,12 +58,12 @@ if __name__ == '__main__':
     #print("1c. dask vector WITH DELAYED written out to {} seconds".format('data/task_graph.png')) ##Q1
 
     # transformed vector back into DataFrame with float types
-    df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
+    vecs_df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
 
     # utilize atomic_write to export results to data/embedded.csv
     filename = "data/embedded.csv"
-    with atomic_write(filename) as f:
-        df.to_csv(f)
+    #with atomic_write(filename) as f:
+    #    df.to_csv(f)
 
     print("======== Question 2a Output ==========")
     import numpy
@@ -92,10 +93,14 @@ if __name__ == '__main__':
     metrics_start_dask=time.time()
     metrics_dask = ddf.groupby('stars').agg({'useful': numpy.mean, 'funny': numpy.mean, 'cool': numpy.mean, 'review_id': 'count'})
     print("2c. dask df, new index, metrics calculation took %f seconds. Metrics reported are:" % (time.time()-metrics_start_dask))
-    print(metrics_dask.compute())
 
+    print("======== Question 3 Output ==========")
+    vec_subset=vecs_df[0:1000]
+    close_pandas_start=time.time()
+    closest_wordvector=vec_subset.apply(lambda x: find_distance_yelp(vec_subset,x),axis=1)
+    print("3a. pandas finding index of closest word vector took %f seconds:" % (time.time()-close_pandas_start))
 
-
-
-
-
+    vec_dask_subset=dd.from_pandas(vec_subset,npartitions=10)
+    closest_dask_start=time.time()
+    closest_wordvector_dask=vec_dask_subset.apply(lambda x: dask.delayed(find_distance_yelp)(vec_dask_subset,x),axis=1)
+    print("3b. dask finding index of closest word vector took %f seconds:" % (time.time()-closest_dask_start))
