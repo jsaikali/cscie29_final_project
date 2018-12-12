@@ -117,7 +117,7 @@ Run the aggregations again with said index, and report on the time it took for t
 
 In this case, was the re-indexing worth it? Why / why not?
 
-## 3. Word Vectors (25pts)
+## 3. Word/Distance Vectors Vectors (25pts)
 You now have these beautiful word vectors. I want to know - for each review, find the closest neighbor, and report on:
 - Average number of stars for those 5 neighbors
 

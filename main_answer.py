@@ -103,5 +103,5 @@ if __name__ == '__main__':
     vec_dask_subset=dd.from_pandas(vec_subset,npartitions=10)
     closest_dask_start=time.time()
     closest_wordvector_dask=vec_dask_subset.apply(lambda x: find_distance_yelp_dask(vec_dask_subset,x),axis=1)
+    a=closest_wordvector_dask.compute()
     print("3b. dask finding index of closest word vector took %f seconds:" % (time.time()-closest_dask_start))
-    print(closest_wordvector_dask.head())
