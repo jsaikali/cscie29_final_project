@@ -5,11 +5,13 @@ Created By: Joanna Saikali
 The data is from the Kaggle location:
 https://www.kaggle.com/luisfredgs/yelp-reviews-csv#yelp_review.csv
 
+
 I used a function in pset_02/splitter.py to split that data into manageable chunks which you will find in `data/yelp/`
 
 Be sure that the .gitignore contains the `data/` since the files are huge!
 
 ## Installations
+Please perform the following installations
 - ./drun_app pipenv install dask
 - ./drun_app pipenv install luigi
 
@@ -45,30 +47,42 @@ if __name__ == '__main__':
     embedding = WordEmbedding.from_files('data/words.txt', 'data/vectors.npy.gz')
 
     # read in the yelp review data
-    data = pandas.concat([pandas.read_csv(f) for f in glob.glob('data/yelp/yelp_review_*.csv')], ignore_index = True)
+    data = pandas.concat([pandas.read_csv(f) for f in glob.glob('data/yelp/yelp_review_subset_*.csv')], ignore_index=True)
 
     # subset the data for the vector portion - otherwise we have memory issues
-    data_subset = data.sample(100000)
+    data_subset = data.sample(10000)
 
     # create the vector representation for each yelp review
     vecs = data_subset['text'].apply(embedding.embed_document)
 
     # transformed vector back into DataFrame with float types
     df = pandas.DataFrame([v for v in vecs.values], index=vecs.index)
+    
+    # utilize atomic_write to export results to data/embedded.csv
+    filename = "data/embedded.csv"
+    with atomic_write(filename) as f:
+        df.to_csv(f)
 ```
 
 ## Problems (70 points)
 
 ## 1a. Dask Dataframe (5 pts)
-Let's work with Dask dataframes instead of Pandas dataframes. Note that when you are asked to "output", it is expected that this is done through `main.py` with print statements
+Let's work with Dask dataframes instead of Pandas dataframes. Note that when you are asked to "Output", it is expected that this is done through `main.py` with print statements
 
-- In addition to the existing code reading dataframes as pandas, please read the csvs using `dask.dataframe`. Output the time elapsed for each case.
-- In addition to sampling 100K rows of the pandas dataframe, do so for the dask dataframe. Output the time elapsed for each case.
-- In addition to creating the vector representation for the pandas dataframe, do so for the dask dataframe, do so for the dask dataframe. Output the time elapsed for each case.
-- After you transform the vector data back to a pandas dataframe, use dask's `from_pandas` method to convert it also into a dask dataframe called `df_dask`. We will be working with it later.
+1. In addition to the existing code reading dataframes as pandas, please read the csvs in `data/yelp/` using `dask.dataframe`. Report:
+    - Time elapsed loading the data using pandas
+    - Time elapsed loading the data using dask dataframes
+2. In addition to creating the vector representation `vecs` for the pandas dataframe, do so for the dask dataframe. Report:
+    - Time elapsed running `embed_document` on the pandas dataframe
+    - Time elapsed running `embed_document` on the dask dataframe
 
-## 1b. embed_document
-Change the `embed_document` method in the `WordEmbedding` class so that it leverages `dask.delayed`. Output the time elapsed when running `embed_document` on the dask dataframe with versus without `dask.delayed`.
+## 1b. Dask Delayed
+When running the `embed_document` function off of the dask dataframe, we can further make it efficient ny leveraging `dask.delayed`. 
+
+Add a line of code to your main function to run the `embed_document` on the dask dataframe using `dask.delayed`.  method in the `WordEmbedding` class so that it leverages `dask.delayed`. In part 2 of the last question, you reported some timestamps. Now report:
+- Time elapsed using embed_document on the dask dataframe WITH dask.delayed.
+
+Is there a significant difference in computation speed?
 
 ## 2. Dask: Aggregating Metrics using Delayed and Dask Dataframes (40 pts)
 Let's say we want a basic understanding of the characteristics of each star value, including the following
